@@ -21,7 +21,7 @@
 <body>
     <nav class="navbar navbar-expand-md navbar-light bg-light md-4
     border">
-        <a class="navbar-brand" href="{% url 'learning_logs:index' %}">
+        <a class="navbar-brand" href="{% url 'learning_logs:index'%}">
             Learning Log
         </a>
 
@@ -47,17 +47,13 @@
                             {{ user.username }}.</span>
                     </li>
                     <li class="nav-item">
-                        <form action="{% url 'users:logout' %}" method=
-                        "post">
-                        {% csrf_token %}
-                        <button class="nav-link btn btn-link"
-                         type="submit">Log Out</button>
-                        </form>
+                        <a class="nav-link" href=
+                        "{% url 'users:logout' %}">Log Out</a>
                     </li>
                 {% else %}
                     <li class="nav-item">
                         <a class="nav-link" href=
-                        "{% url 'users:register' %}">Register</a>
+                        "{% url 'user:register' %}">Register</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href=

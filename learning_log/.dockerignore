@@ -1,0 +1,12 @@
+# 排除虚拟环境（书中ll_env）
+ll_env/
+# 排除本地数据库（书中db.sqlite3）
+*.sqlite3
+# 排除Git相关文件
+.git/
+.gitignore
+# 排除编辑器缓存
+.idea/
+.vscode/
+# 排除静态文件收集目录（容器内会重新生成）
+staticfiles/

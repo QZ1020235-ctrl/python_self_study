@@ -134,6 +134,32 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # 我的设置
 LOGIN_URL = 'users:login'
 
-# Heroku设置
-import django_heroku
-django_heroku.settings(locals())
+# CloudBase 适配配置
+import os
+
+# 1. 允许CloudBase域名访问（替代书中ALLOWED_HOSTS = []）
+ALLOWED_HOSTS = [
+    '*',  # 部署初期用*方便测试，后续可替换为CloudBase默认域名
+    os.getenv('ALLOWED_HOST', '*')  # 从环境变量读取域名（生产环境用）
+]
+
+# 2. 静态文件配置（复用书中20.1.7的STATIC_ROOT，适配CloudBase静态托管）
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # 书中已配置，无需修改
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]  # 补充静态文件源目录
+
+# 3. 数据库配置（兼容CloudBase云数据库，替代书中Heroku PostgreSQL）
+# 优先从CloudBase环境变量读取数据库信息，本地仍用SQLite（不影响本地开发）
+DATABASES = {
+    'default': {
+        'ENGINE': os.getenv('DB_ENGINE', 'django.db.backends.sqlite3'),
+        'NAME': os.getenv('DB_NAME', os.path.join(BASE_DIR, 'db.sqlite3')),
+        'USER': os.getenv('DB_USER', ''),
+        'PASSWORD': os.getenv('DB_PASSWORD', ''),
+        'HOST': os.getenv('DB_HOST', ''),
+        'PORT': os.getenv('DB_PORT', ''),
+    }
+}
+
+# 4. DEBUG模式控制（复用书中20.2.12的环境变量逻辑，避免泄露调试信息）
+DEBUG = os.getenv('DEBUG', 'False') == 'True'  # 本地默认True，CloudBase部署设为False

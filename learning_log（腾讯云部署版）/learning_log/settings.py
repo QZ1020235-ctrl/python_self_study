@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -25,8 +26,20 @@ SECRET_KEY = "django-insecure-s!vdy6b67x0@&k+1#%6+(58idb+t4l=%0a)!tdm4^msr-(x(4#
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+# 允许访问的域名列表（只填域名主体，不带 https://）
+ALLOWED_HOSTS = [
+    'learning-log-197557-5-1320540975.sh.run.tcloudbase.com',
+    'learning-log-qinzheng123-8guhm42j495d526f-1320540975.ap-shanghai.run.wxcloudrun.com',
+    os.getenv('ALLOWED_HOST', '')  # 兼容环境变量（可选）
+]
 
+# CSRF 可信源列表（需带完整 https:// 协议）
+CSRF_TRUSTED_ORIGINS = [
+    "https://learning-log-197557-5-1320540975.sh.run.tcloudbase.com",
+    "https://learning-log-qinzheng123-8guhm42j495d526f-1320540975.ap-shanghai.run.wxcloudrun.com",
+]
+
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # Application definition
 
@@ -133,3 +146,33 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # 我的设置
 LOGIN_URL = 'users:login'
+
+# CloudBase 适配配置
+
+# 1. 允许CloudBase域名访问（替代书中ALLOWED_HOSTS = []）
+# 替换为你的域名
+
+# 2. 静态文件配置（复用书中20.1.7的STATIC_ROOT，适配CloudBase静态托管）
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')  # 书中已配置，无需修改
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'staticfiles')]  # 补充静态文件源目录
+
+# 3. 数据库配置（兼容CloudBase云数据库，替换为MySQL逻辑）
+DATABASES = {
+    'default': {
+        'ENGINE': os.getenv('DB_ENGINE', 'django.db.backends.mysql'),
+        'NAME': os.getenv('DB_NAME', 'qinzheng123-8guhm42j495d526f'),  # 加默认值
+        'USER': os.getenv('DB_USER', 'qinzheng'),
+        'PASSWORD': os.getenv('DB_PASSWORD', 'Qz12345678'),
+        'HOST': os.getenv('DB_HOST', 'sh-cynosdbmysql-grp-1vls57i0.sql.tencentcdb.com'),
+        'PORT': os.getenv('DB_PORT', '23552'),
+        'OPTIONS': {
+            'charset': 'utf8mb4',
+            'connect_timeout': 10,
+            'ssl': {'verify_mode': 'NONE'}
+        },
+    }
+}
+
+# 4. DEBUG模式控制（复用书中20.2.12的环境变量逻辑，避免泄露调试信息）
+# DEBUG = os.getenv('DEBUG', 'False') == 'True'  # 本地默认True，CloudBase部署设为False
